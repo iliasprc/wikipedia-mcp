@@ -1,7 +1,37 @@
-```markdown
 # Wikipedia MCP Server
 
 A Model Context Protocol (MCP) server that retrieves information from Wikipedia to provide context to LLMs. Built by [Ravikumar E](https://github.com/Rudra-ravi), a Cybersecurity Analyst and Full-stack Developer specializing in Python development and AI integration.
+
+## Project Status
+
+🚧 **Under Development** 🚧
+
+This project is currently in active development. The core functionality is being implemented, and we welcome contributions from the community.
+
+### Implementation Roadmap
+
+- [ ] Core MCP Server Setup
+  - [ ] Basic server configuration
+  - [ ] Request handling
+  - [ ] Error handling and logging
+
+- [ ] Wikipedia API Integration
+  - [ ] Article search functionality
+  - [ ] Content retrieval
+  - [ ] Summary generation
+  - [ ] Section extraction
+
+- [ ] Advanced Features
+  - [ ] Content caching
+  - [ ] Rate limiting
+  - [ ] Error recovery
+  - [ ] API documentation
+
+- [ ] Testing and Documentation
+  - [ ] Unit tests
+  - [ ] Integration tests
+  - [ ] API documentation
+  - [ ] Usage examples
 
 ## About the Author
 
@@ -11,15 +41,68 @@ I'm a Cybersecurity Analyst and Mobile Developer with expertise in:
 - 🤖 AI Integration and Cloud Security
 - 🛠️ IoT and Home Automation
 
-## Features
+## Planned Features
 
 - Search Wikipedia articles
+  - Full-text search
+  - Category-based search
+  - Language support
 - Retrieve article summaries
+  - Configurable length
+  - Multiple formats (plain text, markdown)
 - Get full article content
+  - Section-wise retrieval
+  - Format preservation
+  - Image handling
 - Extract article sections
+  - Hierarchical section extraction
+  - Custom section filtering
 - Find links within articles
+  - Internal links
+  - External references
+  - Category links
 - Secure API implementation
+  - Rate limiting
+  - Authentication (optional)
+  - HTTPS support
 - Efficient data retrieval and caching
+  - Local caching
+  - Cache invalidation
+  - Memory optimization
+
+## Project Structure
+
+```
+wikipedia-mcp/
+├── wikipedia_mcp/
+│   ├── __init__.py
+│   ├── cli.py
+│   ├── server.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   └── handlers.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── wikipedia.py
+│   │   └── cache.py
+│   └── utils/
+│       ├── __init__.py
+│       └── helpers.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_api.py
+│   └── test_core.py
+├── docs/
+│   ├── API.md
+│   └── DEVELOPMENT.md
+├── README.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── setup.py
+├── requirements.txt
+└── .gitignore
+```
 
 ## Installation
 
@@ -108,6 +191,20 @@ pip install -e .
 wikipedia-mcp
 ```
 
+### Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
+
+### Testing
+
+```bash
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=wikipedia_mcp tests/
+```
+
 ## Connect with Me
 
 - 🌐 Portfolio: [ravikumar-dev.me](https://ravikumar-dev.me)
@@ -118,4 +215,9 @@ wikipedia-mcp
 ## License
 
 MIT
-```
+
+## Acknowledgments
+
+- [Model Context Protocol (MCP)](https://github.com/anthropics/anthropic-sdk-python)
+- [Wikipedia API](https://wikipedia.readthedocs.io/en/latest/)
+- [Claude Desktop](https://github.com/anthropics/claude-desktop)
