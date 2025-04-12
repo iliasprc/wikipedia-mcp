@@ -1,0 +1,51 @@
+name: Test Wikipedia MCP
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -e .
+          pip install pytest pytest-cov
+
+      - name: Run tests
+        run: |
+          # If you have tests, run them here
+          # pytest --cov=wikipedia_mcp tests/
+          
+          # For now, just check that the package installs and imports correctly
+          python -c "import wikipedia_mcp; print('Import successful')"
+          python -m wikipedia_mcp --help || echo "Help command not supported, but import worked"
+
+      - name: Build package
+        run: |
+          pip install build
+          python -m build
+          
+      - name: Verify package
+        run: |
+          pip install dist/*.whl
+          python -c "import wikipedia_mcp; print('Package verification successful')" 

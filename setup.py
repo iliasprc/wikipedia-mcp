@@ -13,13 +13,13 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="wikipedia-mcp",
-    version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    version="1.0.2",
+    author="Ravi Kumar",
+    author_email="ravikumar@ravikumar-dev.me",
     description="A Model Context Protocol server for Wikipedia integration",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/wikipedia-mcp",
+    url="https://github.com/rudra-ravi/wikipedia-mcp",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
