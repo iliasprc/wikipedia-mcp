@@ -33,12 +33,7 @@ jobs:
 
       - name: Run tests
         run: |
-          # If you have tests, run them here
-          # pytest --cov=wikipedia_mcp tests/
-          
-          # For now, just check that the package installs and imports correctly
-          python -c "import wikipedia_mcp; print('Import successful')"
-          python -m wikipedia_mcp --help || echo "Help command not supported, but import worked"
+          pytest --cov=wikipedia_mcp tests/ -v
 
       - name: Build package
         run: |

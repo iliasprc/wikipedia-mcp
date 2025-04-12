@@ -5,7 +5,7 @@ Thank you for your interest in contributing to the Wikipedia MCP Server! We welc
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/wikipedia-mcp.git`
+2. Clone your fork: `git clone https://github.com/rudra-ravi/wikipedia-mcp.git`
 3. Create a new branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Run tests: `python -m pytest`
