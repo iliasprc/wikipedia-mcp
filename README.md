@@ -1,5 +1,7 @@
 # Wikipedia MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@Rudra-ravi/wikipedia-mcp)](https://smithery.ai/server/@Rudra-ravi/wikipedia-mcp)
+
 A Model Context Protocol (MCP) server that retrieves information from Wikipedia to provide context to Large Language Models (LLMs). This tool helps AI assistants access factual information from Wikipedia to ground their responses in reliable sources.
 
 ## Overview
@@ -17,6 +19,14 @@ The Wikipedia MCP server provides real-time access to Wikipedia information thro
 - **Multi-language Support**: Access Wikipedia in different languages
 
 ## Installation
+
+### Installing via Smithery
+
+To install wikipedia-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@Rudra-ravi/wikipedia-mcp):
+
+```bash
+npx -y @smithery/cli install @Rudra-ravi/wikipedia-mcp --client claude
+```
 
 ### Using pipx (Recommended)
 
