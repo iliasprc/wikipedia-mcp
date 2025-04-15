@@ -3,6 +3,7 @@
 [![smithery badge](https://smithery.ai/badge/@Rudra-ravi/wikipedia-mcp)](https://smithery.ai/server/@Rudra-ravi/wikipedia-mcp)
 
 A Model Context Protocol (MCP) server that retrieves information from Wikipedia to provide context to Large Language Models (LLMs). This tool helps AI assistants access factual information from Wikipedia to ground their responses in reliable sources.
+![image](https://github.com/user-attachments/assets/8367d7f2-08f4-4eb3-9950-0af5a84f83c4)
 
 ## Overview
 
