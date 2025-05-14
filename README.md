@@ -1,4 +1,3 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/rudra-ravi-wikipedia-mcp-badge.png)](https://mseep.ai/app/rudra-ravi-wikipedia-mcp)
 
 # Wikipedia MCP Server
 
@@ -12,6 +11,10 @@ A Model Context Protocol (MCP) server that retrieves information from Wikipedia 
 ## Overview
 
 The Wikipedia MCP server provides real-time access to Wikipedia information through a standardized Model Context Protocol interface. This allows LLMs to retrieve accurate and up-to-date information directly from Wikipedia to enhance their responses.
+
+## Verified By
+
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/rudra-ravi-wikipedia-mcp-badge.png)](https://mseep.ai/app/rudra-ravi-wikipedia-mcp)
 
 ## Features
 
