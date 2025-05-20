@@ -36,24 +36,34 @@ def main():
         level=getattr(logging, args.log_level),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
+    
+    logger = logging.getLogger(__name__)
 
     # Create and start the server
     server = create_server()
     
-    # Note: MCP doesn't use traditional HTTP ports. It communicates through stdio or SSE.
-    print(f"Starting Wikipedia MCP server with {args.transport} transport")
-    print(f"To use with Claude Desktop, configure claude_desktop_config.json with:")
-    print(f"""
-    {{
-      "mcpServers": {{
-        "wikipedia": {{
-          "command": "wikipedia-mcp"
+    # Log startup information
+    logger.info(f"Starting Wikipedia MCP server with {args.transport} transport")
+    
+    # Only print configuration info to stdout when not using stdio transport
+    # to avoid interfering with the STDIO protocol
+    if args.transport != "stdio":
+        print(f"Starting Wikipedia MCP server with {args.transport} transport")
+        print(f"To use with Claude Desktop, configure claude_desktop_config.json with:")
+        print(f"""
+        {{
+          "mcpServers": {{
+            "wikipedia": {{
+              "command": "wikipedia-mcp"
+            }}
+          }}
         }}
-      }}
-    }}
-    """)
+        """)
+    else:
+        logger.info("Using stdio transport - suppressing stdout messages")
+        logger.info("To use with Claude Desktop, configure claude_desktop_config.json with the wikipedia-mcp command")
     
     server.run(transport=args.transport)
 
 if __name__ == "__main__":
-    main() 
+    main()
