@@ -56,8 +56,8 @@ jobs:
           git config --local user.name "GitHub Action"
           git add pyproject.toml
           git commit -m "Bump version to ${{ github.event.inputs.version }}"
-          git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
-          git push origin v${{ github.event.inputs.version }}
+          git tag -f -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
+          git push origin v${{ github.event.inputs.version }} --force
           git push origin main
 
       - name: Create GitHub Release
