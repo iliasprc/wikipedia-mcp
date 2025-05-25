@@ -213,8 +213,8 @@ source venv/bin/activate
 # Install the package in development mode
 pip install -e .
 
-# Install development dependencies
-pip install -r requirements.txt
+# Install development and test dependencies
+pip install -r requirements-dev.txt
 
 # Run the server
 wikipedia-mcp
@@ -229,6 +229,97 @@ wikipedia-mcp
   - `api/`: API implementation
   - `core/`: Core functionality
   - `utils/`: Utility functions
+- `tests/`: Test suite
+  - `test_basic.py`: Basic package tests
+  - `test_cli.py`: Command-line interface tests
+  - `test_server_tools.py`: Comprehensive server and tool tests
+
+## Testing
+
+The project includes a comprehensive test suite to ensure reliability and functionality.
+
+### Test Structure
+
+The test suite is organized in the `tests/` directory with the following test files:
+
+- **`test_basic.py`**: Basic package functionality tests
+- **`test_cli.py`**: Command-line interface and transport tests
+- **`test_server_tools.py`**: Comprehensive tests for all MCP tools and Wikipedia client functionality
+
+### Running Tests
+
+#### Run All Tests
+```bash
+# Install test dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run tests with coverage
+python -m pytest tests/ --cov=wikipedia_mcp --cov-report=html
+```
+
+#### Run Specific Test Categories
+```bash
+# Run only unit tests (excludes integration tests)
+python -m pytest tests/ -v -m "not integration"
+
+# Run only integration tests (requires internet connection)
+python -m pytest tests/ -v -m "integration"
+
+# Run specific test file
+python -m pytest tests/test_server_tools.py -v
+```
+
+### Test Categories
+
+#### Unit Tests
+- **WikipediaClient Tests**: Mock-based tests for all client methods
+  - Search functionality
+  - Article retrieval
+  - Summary extraction
+  - Section parsing
+  - Link extraction
+  - Related topics discovery
+- **Server Tests**: MCP server creation and tool registration
+- **CLI Tests**: Command-line interface functionality
+
+#### Integration Tests
+- **Real API Tests**: Tests that make actual calls to Wikipedia API
+- **End-to-End Tests**: Complete workflow testing
+
+### Test Configuration
+
+The project uses `pytest.ini` for test configuration:
+
+```ini
+[pytest]
+markers =
+    integration: marks tests as integration tests (may require network access)
+    slow: marks tests as slow running
+
+testpaths = tests
+addopts = -v --tb=short
+```
+
+### Continuous Integration
+
+All tests are designed to:
+- Run reliably in CI/CD environments
+- Handle network failures gracefully
+- Provide clear error messages
+- Cover edge cases and error conditions
+
+### Adding New Tests
+
+When contributing new features:
+
+1. Add unit tests for new functionality
+2. Include both success and failure scenarios
+3. Mock external dependencies (Wikipedia API)
+4. Add integration tests for end-to-end validation
+5. Follow existing test patterns and naming conventions
 
 ## Troubleshooting
 
