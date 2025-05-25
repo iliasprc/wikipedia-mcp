@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="wikipedia-mcp",
-    version="1.0.2",
+    version="1.4.0",
     author="Ravi Kumar",
     author_email="ravikumar@ravikumar-dev.me",
     description="A Model Context Protocol server for Wikipedia integration",
