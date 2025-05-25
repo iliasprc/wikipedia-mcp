@@ -18,14 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write  # Required for trusted publishing
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history and tags
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -45,6 +46,10 @@ jobs:
         run: |
           python -m build
 
+      - name: Check package
+        run: |
+          twine check dist/*
+
       - name: Create release tag
         run: |
           git config --local user.email "action@github.com"
@@ -56,7 +61,7 @@ jobs:
           git push origin main
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}
           name: Wikipedia MCP v${{ github.event.inputs.version }}
@@ -69,8 +74,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to PyPI
+      - name: Publish to PyPI (with API token)
         if: ${{ !github.event.inputs.is_prerelease }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish to PyPI (fallback with username/password)
+        if: ${{ !github.event.inputs.is_prerelease && failure() }}
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
