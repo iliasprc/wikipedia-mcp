@@ -58,6 +58,26 @@ def create_server() -> FastMCP:
             "related_topics": related
         }
 
+    @server.tool()
+    def get_sections(title: str) -> Dict[str, Any]:
+        """Get the sections of a Wikipedia article."""
+        logger.info(f"Tool: Getting sections for: {title}")
+        sections = wikipedia_client.get_sections(title)
+        return {
+            "title": title,
+            "sections": sections
+        }
+
+    @server.tool()
+    def get_links(title: str) -> Dict[str, Any]:
+        """Get the links contained within a Wikipedia article."""
+        logger.info(f"Tool: Getting links for: {title}")
+        links = wikipedia_client.get_links(title)
+        return {
+            "title": title,
+            "links": links
+        }
+
     @server.resource("/search/{query}")
     def search(query: str) -> Dict[str, Any]:
         """Search Wikipedia for articles matching a query."""

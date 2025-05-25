@@ -8,9 +8,6 @@ from setuptools import setup, find_packages
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = fh.read().splitlines()
-
 setup(
     name="wikipedia-mcp",
     version="1.0.2",
@@ -27,7 +24,12 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.9",
-    install_requires=requirements,
+    install_requires=[
+        "mcp==1.6.0",
+        "wikipedia-api>=0.8.0",
+        "requests>=2.31.0",
+        "python-dotenv>=1.0.0",
+    ],
     entry_points={
         "console_scripts": [
             "wikipedia-mcp=wikipedia_mcp.__main__:main",
