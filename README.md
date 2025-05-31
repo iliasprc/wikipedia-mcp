@@ -1,4 +1,3 @@
-
 # Wikipedia MCP Server
 
 [![smithery badge](https://smithery.ai/badge/@Rudra-ravi/wikipedia-mcp)](https://smithery.ai/server/@Rudra-ravi/wikipedia-mcp)
@@ -27,6 +26,16 @@ The Wikipedia MCP server provides real-time access to Wikipedia information thro
 - **Multi-language Support**: Access Wikipedia in different languages
 
 ## Installation
+
+### From PyPI (Recommended)
+
+The easiest way to install the Wikipedia MCP server is directly from PyPI:
+
+```bash
+pip install wikipedia-mcp
+```
+
+This will install the latest stable version.
 
 ### Installing via Smithery
 
