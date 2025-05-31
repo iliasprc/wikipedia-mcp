@@ -49,6 +49,42 @@ def create_server() -> FastMCP:
         }
 
     @server.tool()
+    def summarize_article_for_query(title: str, query: str, max_length: Optional[int] = 250) -> Dict[str, Any]:
+        """Get a summary of a Wikipedia article tailored to a specific query."""
+        logger.info(f"Tool: Getting query-focused summary for article: {title}, query: {query}")
+        # Assuming wikipedia_client has a method like summarize_for_query
+        summary = wikipedia_client.summarize_for_query(title, query, max_length=max_length)
+        return {
+            "title": title,
+            "query": query,
+            "summary": summary
+        }
+
+    @server.tool()
+    def summarize_article_section(title: str, section_title: str, max_length: Optional[int] = 150) -> Dict[str, Any]:
+        """Get a summary of a specific section of a Wikipedia article."""
+        logger.info(f"Tool: Getting summary for section: {section_title} in article: {title}")
+        # Assuming wikipedia_client has a method like summarize_section
+        summary = wikipedia_client.summarize_section(title, section_title, max_length=max_length)
+        return {
+            "title": title,
+            "section_title": section_title,
+            "summary": summary
+        }
+
+    @server.tool()
+    def extract_key_facts(title: str, topic_within_article: Optional[str] = None, count: int = 5) -> Dict[str, Any]:
+        """Extract key facts from a Wikipedia article, optionally focused on a topic."""
+        logger.info(f"Tool: Extracting key facts for article: {title}, topic: {topic_within_article}")
+        # Assuming wikipedia_client has a method like extract_facts
+        facts = wikipedia_client.extract_facts(title, topic_within_article, count=count)
+        return {
+            "title": title,
+            "topic_within_article": topic_within_article,
+            "facts": facts
+        }
+
+    @server.tool()
     def get_related_topics(title: str, limit: int = 10) -> Dict[str, Any]:
         """Get topics related to a Wikipedia article based on links and categories."""
         logger.info(f"Tool: Getting related topics for: {title}")
@@ -105,6 +141,28 @@ def create_server() -> FastMCP:
             "summary": summary
         }
 
+    @server.resource("/summary/{title}/query/{query}/length/{max_length}")
+    def summary_for_query_resource(title: str, query: str, max_length: int) -> Dict[str, Any]:
+        """Get a summary of a Wikipedia article tailored to a specific query."""
+        logger.info(f"Resource: Getting query-focused summary for article: {title}, query: {query}, max_length: {max_length}")
+        summary = wikipedia_client.summarize_for_query(title, query, max_length=max_length)
+        return {
+            "title": title,
+            "query": query,
+            "summary": summary
+        }
+
+    @server.resource("/summary/{title}/section/{section_title}/length/{max_length}")
+    def summary_section_resource(title: str, section_title: str, max_length: int) -> Dict[str, Any]:
+        """Get a summary of a specific section of a Wikipedia article."""
+        logger.info(f"Resource: Getting summary for section: {section_title} in article: {title}, max_length: {max_length}")
+        summary = wikipedia_client.summarize_section(title, section_title, max_length=max_length)
+        return {
+            "title": title,
+            "section_title": section_title,
+            "summary": summary
+        }
+
     @server.resource("/sections/{title}")
     def sections(title: str) -> Dict[str, Any]:
         """Get the sections of a Wikipedia article."""
@@ -123,6 +181,17 @@ def create_server() -> FastMCP:
         return {
             "title": title,
             "links": links
+        }
+
+    @server.resource("/facts/{title}/topic/{topic_within_article}/count/{count}")
+    def key_facts_resource(title: str, topic_within_article: str, count: int) -> Dict[str, Any]:
+        """Extract key facts from a Wikipedia article."""
+        logger.info(f"Resource: Extracting key facts for article: {title}, topic: {topic_within_article}, count: {count}")
+        facts = wikipedia_client.extract_facts(title, topic_within_article, count=count)
+        return {
+            "title": title,
+            "topic_within_article": topic_within_article,
+            "facts": facts
         }
 
     return server 

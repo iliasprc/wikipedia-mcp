@@ -221,6 +221,155 @@ class TestWikipediaClient:
         assert sections[0]['sections'][0]['title'] == 'Subsection'
         assert sections[0]['sections'][0]['level'] == 1
 
+    def test_summarize_for_query_success(self):
+        """Test successful query-focused summary retrieval."""
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.text = 'This is a long text about a specific keyword. We want to find this keyword and summarize around it.'
+        mock_page.summary = 'This is a general summary.'
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_for_query('Test Page', 'keyword', max_length=50)
+        
+        assert 'keyword' in summary
+        assert len(summary) <= 50 + 3 # for "..."
+
+    def test_summarize_for_query_not_found(self):
+        """Test query-focused summary when query is not in text."""
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.text = 'This is some other text.'
+        mock_page.summary = 'A general summary content.'
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_for_query('Test Page', 'missing_keyword', max_length=30)
+
+        assert 'A general summary content.'[:30] in summary # Should return start of summary
+
+    def test_summarize_for_query_page_not_exists(self):
+        """Test query-focused summary when page does not exist."""
+        mock_page = Mock()
+        mock_page.exists.return_value = False
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_for_query('NonExistent Page', 'keyword')
+        assert "No Wikipedia article found for 'NonExistent Page'" in summary
+
+    def test_summarize_section_success(self):
+        """Test successful section summary retrieval."""
+        mock_section_target = Mock()
+        mock_section_target.title = 'Target Section'
+        mock_section_target.text = 'This is the text of the target section. It is fairly long.'
+        mock_section_target.sections = []
+
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.sections = [mock_section_target]
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_section('Test Page', 'Target Section', max_length=20)
+        
+        assert summary == 'This is the text of ...'
+        assert len(summary) <= 20 + 3
+
+    def test_summarize_section_not_found(self):
+        """Test section summary when section does not exist."""
+        mock_other_section = Mock()
+        mock_other_section.title = 'Other Section'
+        mock_other_section.text = 'Some text.'
+        mock_other_section.sections = []
+
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.sections = [mock_other_section]
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_section('Test Page', 'Missing Section')
+        assert "Section 'Missing Section' not found or is empty" in summary
+
+    def test_summarize_section_page_not_exists(self):
+        """Test section summary when page does not exist."""
+        mock_page = Mock()
+        mock_page.exists.return_value = False
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            summary = self.client.summarize_section('NonExistent Page', 'Any Section')
+        assert "No Wikipedia article found for 'NonExistent Page'" in summary
+
+    def test_extract_facts_success_from_summary(self):
+        """Test successful fact extraction from page summary."""
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.summary = 'Fact one. Fact two. Fact three. Fact four. Fact five. Fact six.'
+        mock_page.sections = []
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            facts = self.client.extract_facts('Test Page', count=3)
+        
+        assert len(facts) == 3
+        assert facts[0] == 'Fact one.'
+        assert facts[1] == 'Fact two.'
+        assert facts[2] == 'Fact three.'
+
+    def test_extract_facts_success_from_section(self):
+        """Test successful fact extraction from a specific section."""
+        mock_target_section = Mock()
+        mock_target_section.title = 'Key Info'
+        mock_target_section.text = 'Important fact A. Important fact B. Important fact C.'
+        mock_target_section.sections = []
+
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.summary = 'General summary.'
+        mock_page.sections = [mock_target_section]
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            facts = self.client.extract_facts('Test Page', topic_within_article='Key Info', count=2)
+        
+        assert len(facts) == 2
+        assert facts[0] == 'Important fact A.'
+        assert facts[1] == 'Important fact B.'
+
+    def test_extract_facts_section_not_found_fallback_to_summary(self):
+        """Test fact extraction falls back to summary if section not found."""
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Test Page'
+        mock_page.summary = 'Summary fact 1. Summary fact 2.'
+        mock_page.sections = [] # No sections defined
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            facts = self.client.extract_facts('Test Page', topic_within_article='Missing Section', count=1)
+        
+        assert len(facts) == 1
+        assert facts[0] == 'Summary fact 1.'
+
+    def test_extract_facts_page_not_exists(self):
+        """Test fact extraction when page does not exist."""
+        mock_page = Mock()
+        mock_page.exists.return_value = False
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            facts = self.client.extract_facts('NonExistent Page')
+        assert len(facts) == 1
+        assert "No Wikipedia article found for 'NonExistent Page'" in facts[0]
+
+    def test_extract_facts_no_content(self):
+        """Test fact extraction when there is no summary or section text."""
+        mock_page = Mock()
+        mock_page.exists.return_value = True
+        mock_page.title = 'Empty Page'
+        mock_page.summary = '' # Empty summary
+        mock_page.sections = []
+
+        with patch.object(self.client.wiki, 'page', return_value=mock_page):
+            facts = self.client.extract_facts('Empty Page')
+        assert len(facts) == 1
+        assert "No content found to extract facts from." in facts[0]
+
 
 class TestMCPServerTools:
     """Test the MCP server tools."""

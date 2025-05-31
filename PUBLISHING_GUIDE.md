@@ -88,7 +88,7 @@ To trigger a release:
 2. Click "Actions" tab
 3. Click "Release Wikipedia MCP" workflow
 4. Click "Run workflow"
-5. Enter the version number (e.g., "1.4.2")
+5. Enter the version number (e.g., "1.5.0")
 6. Choose if it's a pre-release
 7. Click "Run workflow"
 
@@ -125,7 +125,7 @@ After successful upload:
 ## Best Practices
 
 1. **Always test on TestPyPI first**
-2. **Use semantic versioning** (e.g., 1.4.1, 1.5.0)
+2. **Use semantic versioning** (e.g., 1.5.0, 1.5.1)
 3. **Update CHANGELOG.md** before releases
 4. **Tag releases** in Git
 5. **Use API tokens** instead of passwords

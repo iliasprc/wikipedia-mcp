@@ -249,4 +249,149 @@ class WikipediaClient:
             }
             result.append(section_data)
         
-        return result 
+        return result
+
+    def summarize_for_query(self, title: str, query: str, max_length: Optional[int] = 250) -> str:
+        """
+        Get a summary of a Wikipedia article tailored to a specific query.
+        This is a simplified implementation that returns a snippet around the query.
+        
+        Args:
+            title: The title of the Wikipedia article.
+            query: The query to focus the summary on.
+            max_length: The maximum length of the summary.
+            
+        Returns:
+            A query-focused summary.
+        """
+        try:
+            page = self.wiki.page(title)
+            if not page.exists():
+                return f"No Wikipedia article found for '{title}'."
+
+            text_content = page.text
+            query_lower = query.lower()
+            text_lower = text_content.lower()
+
+            start_index = text_lower.find(query_lower)
+            if start_index == -1:
+                # If query not found, return the beginning of the summary or article text
+                summary_part = page.summary[:max_length]
+                if not summary_part:
+                    summary_part = text_content[:max_length]
+                return summary_part + "..." if len(summary_part) >= max_length else summary_part
+
+
+            # Try to get context around the query
+            context_start = max(0, start_index - (max_length // 2))
+            context_end = min(len(text_content), start_index + len(query) + (max_length // 2))
+            
+            snippet = text_content[context_start:context_end]
+            
+            if len(snippet) > max_length:
+                snippet = snippet[:max_length]
+
+            return snippet + "..." if len(snippet) >= max_length or context_end < len(text_content) else snippet
+
+        except Exception as e:
+            logger.error(f"Error generating query-focused summary for '{title}': {e}")
+            return f"Error generating query-focused summary for '{title}': {str(e)}"
+
+    def summarize_section(self, title: str, section_title: str, max_length: Optional[int] = 150) -> str:
+        """
+        Get a summary of a specific section of a Wikipedia article.
+        
+        Args:
+            title: The title of the Wikipedia article.
+            section_title: The title of the section to summarize.
+            max_length: The maximum length of the summary.
+            
+        Returns:
+            A summary of the specified section.
+        """
+        try:
+            page = self.wiki.page(title)
+            if not page.exists():
+                return f"No Wikipedia article found for '{title}'."
+
+            target_section = None
+            
+            # Helper function to find the section
+            def find_section_recursive(sections_list, target_title):
+                for sec in sections_list:
+                    if sec.title.lower() == target_title.lower():
+                        return sec
+                    # Check subsections
+                    found_in_subsection = find_section_recursive(sec.sections, target_title)
+                    if found_in_subsection:
+                        return found_in_subsection
+                return None
+
+            target_section = find_section_recursive(page.sections, section_title)
+
+            if not target_section or not target_section.text:
+                return f"Section '{section_title}' not found or is empty in article '{title}'."
+            
+            summary = target_section.text[:max_length]
+            return summary + "..." if len(target_section.text) > max_length else summary
+            
+        except Exception as e:
+            logger.error(f"Error summarizing section '{section_title}' for article '{title}': {e}")
+            return f"Error summarizing section '{section_title}': {str(e)}"
+
+    def extract_facts(self, title: str, topic_within_article: Optional[str] = None, count: int = 5) -> List[str]:
+        """
+        Extract key facts from a Wikipedia article.
+        This is a simplified implementation returning the first few sentences of the summary
+        or a relevant section if topic_within_article is provided.
+        
+        Args:
+            title: The title of the Wikipedia article.
+            topic_within_article: Optional topic/section to focus fact extraction.
+            count: The number of facts to extract.
+            
+        Returns:
+            A list of key facts (strings).
+        """
+        try:
+            page = self.wiki.page(title)
+            if not page.exists():
+                return [f"No Wikipedia article found for '{title}'."]
+
+            text_to_process = ""
+            if topic_within_article:
+                # Try to find the section text
+                def find_section_text_recursive(sections_list, target_title):
+                    for sec in sections_list:
+                        if sec.title.lower() == target_title.lower():
+                            return sec.text
+                        found_in_subsection = find_section_text_recursive(sec.sections, target_title)
+                        if found_in_subsection:
+                            return found_in_subsection
+                    return None
+                
+                section_text = find_section_text_recursive(page.sections, topic_within_article)
+                if section_text:
+                    text_to_process = section_text
+                else:
+                    # Fallback to summary if specific topic section not found
+                    text_to_process = page.summary
+            else:
+                text_to_process = page.summary
+            
+            if not text_to_process:
+                return ["No content found to extract facts from."]
+
+            # Basic sentence splitting (can be improved with NLP libraries like nltk or spacy)
+            sentences = [s.strip() for s in text_to_process.split('.') if s.strip()]
+            
+            facts = []
+            for sentence in sentences[:count]:
+                if sentence: # Ensure not an empty string after strip
+                    facts.append(sentence + ".") # Add back the period
+            
+            return facts if facts else ["Could not extract facts from the provided text."]
+
+        except Exception as e:
+            logger.error(f"Error extracting key facts for '{title}': {e}")
+            return [f"Error extracting key facts for '{title}': {str(e)}"] 
