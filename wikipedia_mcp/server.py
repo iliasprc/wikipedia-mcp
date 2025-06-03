@@ -10,7 +10,7 @@ from wikipedia_mcp.wikipedia_client import WikipediaClient
 
 logger = logging.getLogger(__name__)
 
-def create_server() -> FastMCP:
+def create_server(language: str = "en") -> FastMCP:
     """Create and configure the Wikipedia MCP server."""
     server = FastMCP(
         name="Wikipedia",
@@ -18,7 +18,7 @@ def create_server() -> FastMCP:
     )
 
     # Initialize Wikipedia client
-    wikipedia_client = WikipediaClient()
+    wikipedia_client = WikipediaClient(language=language)
 
     # Register tools
     @server.tool()

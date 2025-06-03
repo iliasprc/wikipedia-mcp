@@ -99,6 +99,9 @@ wikipedia-mcp
 # Specify transport protocol (default: stdio)
 wikipedia-mcp --transport stdio  # For Claude Desktop
 wikipedia-mcp --transport sse    # For HTTP streaming
+
+# Specify language (default: en for English)
+# wikipedia-mcp --language ja  # Example for Japanese
 ```
 
 ### Configuration for Claude Desktop
@@ -186,6 +189,42 @@ Get topics related to a Wikipedia article based on links and categories.
 **Returns:**
 - A list of related topics with relevance information
 
+### `summarize_article_for_query`
+
+Get a summary of a Wikipedia article tailored to a specific query.
+
+**Parameters:**
+- `title` (string): The title of the Wikipedia article
+- `query` (string): The query to focus the summary on
+- `max_length` (integer, optional): Maximum length of the summary (default: 250)
+
+**Returns:**
+- A dictionary containing the title, query, and the focused summary
+
+### `summarize_article_section`
+
+Get a summary of a specific section of a Wikipedia article.
+
+**Parameters:**
+- `title` (string): The title of the Wikipedia article
+- `section_title` (string): The title of the section to summarize
+- `max_length` (integer, optional): Maximum length of the summary (default: 150)
+
+**Returns:**
+- A dictionary containing the title, section title, and the section summary
+
+### `extract_key_facts`
+
+Extract key facts from a Wikipedia article, optionally focused on a specific topic within the article.
+
+**Parameters:**
+- `title` (string): The title of the Wikipedia article
+- `topic_within_article` (string, optional): A specific topic within the article to focus fact extraction
+- `count` (integer, optional): Number of key facts to extract (default: 5)
+
+**Returns:**
+- A dictionary containing the title, topic, and a list of extracted facts
+
 ## Example Prompts
 
 Once the server is running and configured with Claude Desktop, you can use prompts like:
@@ -205,6 +244,9 @@ The server also provides MCP resources (similar to HTTP endpoints but for MCP):
 - `summary/{title}`: Get a summary of a Wikipedia article
 - `sections/{title}`: Get the sections of a Wikipedia article
 - `links/{title}`: Get the links in a Wikipedia article
+- `summary/{title}/query/{query}/length/{max_length}`: Get a query-focused summary of an article
+- `summary/{title}/section/{section_title}/length/{max_length}`: Get a summary of a specific article section
+- `facts/{title}/topic/{topic_within_article}/count/{count}`: Extract key facts from an article
 
 ## Development
 

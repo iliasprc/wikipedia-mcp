@@ -16,7 +16,8 @@ def run_mcp_command(args, expect_timeout=False):
             capture_output=True,
             text=True,
             check=False,
-            timeout=3  # Shorter timeout for faster tests
+            timeout=5,  # Increased timeout
+            stdin=subprocess.PIPE  # Explicitly pipe stdin
         )
         return process
     except FileNotFoundError:
@@ -26,7 +27,8 @@ def run_mcp_command(args, expect_timeout=False):
                 capture_output=True,
                 text=True,
                 check=False,
-                timeout=3
+                timeout=5,  # Increased timeout
+                stdin=subprocess.PIPE  # Explicitly pipe stdin
             )
             return process
         except subprocess.TimeoutExpired as e:
@@ -46,23 +48,21 @@ def test_cli_stdio_transport_starts():
     args = ["--transport", "stdio", "--log-level", "INFO"]
     result = run_mcp_command(args, expect_timeout=True)
 
-    # For stdio mode, we expect the process to start and then timeout waiting for input
-    # This indicates the server started successfully
-    assert isinstance(result, subprocess.TimeoutExpired), "Expected timeout for stdio mode"
+    # For stdio mode, we expect the process to start and then timeout waiting for input.
+    assert isinstance(result, subprocess.TimeoutExpired), \
+        f"Expected TimeoutExpired, got {type(result)}. Stderr: {getattr(result, 'stderr', 'N/A')}"
     
     # Check that some logging output was captured (from any source)
-    stderr_bytes = result.stderr if hasattr(result, 'stderr') else b''
-    stderr_output = stderr_bytes.decode('utf-8', errors='replace') if isinstance(stderr_bytes, bytes) else stderr_bytes
-    
-    # At minimum, we should see some log output indicating the process started
-    assert len(stderr_output.strip()) > 0, "Expected some log output on stderr"
-    
+    stderr_output = result.stderr.decode('utf-8', errors='replace') if hasattr(result, 'stderr') and result.stderr else ""
+        
+    assert "Starting Wikipedia MCP server with stdio transport" in stderr_output, \
+        f"Expected startup message not found in stderr. Stderr: {stderr_output}"
+    assert "Using stdio transport - suppressing direct stdout messages" in stderr_output, \
+        f"Expected stdio mode message not found in stderr. Stderr: {stderr_output}"
+
     # Verify stdout is empty (no prints interfering with stdio protocol)
-    stdout_bytes = result.stdout if hasattr(result, 'stdout') else b''
-    if stdout_bytes is None:
-        stdout_bytes = b''
-    stdout_output = stdout_bytes.decode('utf-8', errors='replace') if isinstance(stdout_bytes, bytes) else str(stdout_bytes)
-    assert stdout_output.strip() == "", "stdout should be empty for stdio transport"
+    stdout_output = result.stdout.decode('utf-8', errors='replace') if hasattr(result, 'stdout') and result.stdout else ""
+    assert stdout_output.strip() == "", f"stdout should be empty for stdio transport. Stdout: {stdout_output}"
 
 
 def test_cli_sse_transport_starts():
@@ -106,5 +106,30 @@ def test_cli_log_levels():
         args = ["--transport", "stdio", "--log-level", level]
         result = run_mcp_command(args, expect_timeout=True)
         
-        # Should timeout (indicating successful start) rather than exit with error
-        assert isinstance(result, subprocess.TimeoutExpired), f"Expected timeout for log level {level}" 
+        assert isinstance(result, subprocess.TimeoutExpired), \
+            f"Expected TimeoutExpired for log level {level}, got {type(result)}. Stderr: {getattr(result, 'stderr', 'N/A')}"
+        
+        stderr_output = result.stderr.decode('utf-8', errors='replace') if hasattr(result, 'stderr') and result.stderr else ""
+        
+        startup_message = "Starting Wikipedia MCP server with stdio transport"
+        if level in ["DEBUG", "INFO"]:
+            assert startup_message in stderr_output, \
+                f"Expected startup message for log level {level} not found in stderr. Stderr: {stderr_output}"
+        elif level in ["WARNING", "ERROR"]:
+            assert startup_message not in stderr_output, \
+                f"Expected startup message for log level {level} TO NOT BE PRESENT in stderr, but it was. Stderr: {stderr_output}"
+            # We can also check if *any* output is present for WARNING/ERROR, 
+            # or if specific higher-level messages appear, but for now, ensuring the INFO message
+            # is correctly excluded is the main goal for this part of the test.
+            # The primary check is that it started and timed out, which is covered by isinstance(TimeoutExpired).
+            # We also need to make sure that *some* log output is produced, as the logger is configured.
+            # For WARNING and ERROR, a simple check that stderr is not empty might suffice if no specific message is expected at these levels during startup.
+            # However, the basicConfig in __main__ should always produce *some* output if logging is active.
+            # Let's check if the generic log format appears for WARNING/ERROR, which would imply the logger is active.
+            # This is a bit fragile, but better than nothing.
+            if level == "WARNING":
+                 # Example: Check for a line that looks like a log entry if specific messages are hard to predict
+                 # For now, the absence of the INFO message and the timeout is the core check.
+                 pass # Add more specific checks if needed
+            if level == "ERROR":
+                 pass # Add more specific checks if needed 

@@ -378,6 +378,18 @@ class TestMCPServerTools:
         """Set up test fixtures."""
         self.server = create_server()
 
+    @patch('wikipedia_mcp.server.WikipediaClient')
+    def test_create_server_with_language(self, MockWikipediaClient):
+        """Test that create_server initializes WikipediaClient with the specified language."""
+        create_server(language="ja")
+        MockWikipediaClient.assert_called_once_with(language="ja")
+
+    @patch('wikipedia_mcp.server.WikipediaClient')
+    def test_create_server_default_language(self, MockWikipediaClient):
+        """Test that create_server uses 'en' if no language is specified."""
+        create_server()
+        MockWikipediaClient.assert_called_once_with(language="en")
+
     def test_search_wikipedia_tool(self):
         """Test search_wikipedia tool registration."""
         # Test that server can be created without errors

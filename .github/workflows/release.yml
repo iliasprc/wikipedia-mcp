@@ -6,7 +6,7 @@ on:
       version:
         description: 'Release version'
         required: true
-        default: '1.5.0'
+        default: '1.5.1'
       is_prerelease:
         description: 'Is this a pre-release?'
         type: boolean
@@ -14,16 +14,13 @@ on:
         default: false
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write  # Required for trusted publishing
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history and tags
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -50,6 +47,27 @@ jobs:
         run: |
           twine check dist/*
 
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version in pyproject.toml
+        run: |
+          sed -i "s/version = \"[0-9]*\\.[0-9]*\\.[0-9]*\"/version = \"${{ github.event.inputs.version }}\"/g" pyproject.toml
+
       - name: Create release tag
         run: |
           git config --local user.email "action@github.com"
@@ -59,6 +77,12 @@ jobs:
           git tag -f -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
           git push origin v${{ github.event.inputs.version }} --force
           git push origin main
+
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -74,6 +98,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to PyPI
-        if: ${{ !github.event.inputs.is_prerelease }}
+  publish-to-pypi:
+    name: Publish to PyPI
+    if: ${{ !github.event.inputs.is_prerelease }}
+    needs: [build, create-release]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/wikipedia-mcp  # Replace with your actual package name
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

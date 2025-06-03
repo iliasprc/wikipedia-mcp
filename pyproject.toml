@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wikipedia-mcp"
-version = "1.5.0"
+version = "1.5.2"
 authors = [
-    {name = "Rudra Sen", email = "archangel.rusl@gmail.com"},
+    {name = "Ravi Kumar E", email = "ravikumar@ravikumar-dev.me"},
 ]
 description = "MCP server for Wikipedia API"
 readme = "README.md"
