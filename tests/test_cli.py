@@ -48,12 +48,15 @@ def test_cli_stdio_transport_starts():
     args = ["--transport", "stdio", "--log-level", "INFO"]
     result = run_mcp_command(args, expect_timeout=True)
 
-    # For stdio mode, we expect the process to start and then timeout waiting for input.
-    assert isinstance(result, subprocess.TimeoutExpired), \
-        f"Expected TimeoutExpired, got {type(result)}. Stderr: {getattr(result, 'stderr', 'N/A')}"
+    # For stdio mode, we now expect the process to start, log, and exit cleanly.
+    # It does not block indefinitely in the test environment with piped stdin.
+    assert not isinstance(result, subprocess.TimeoutExpired), \
+        f"Expected command to complete, but it timed out. Stderr: {getattr(result.stderr, 'decode', lambda x: x)('utf-8', 'replace') if hasattr(result, 'stderr') and result.stderr else 'N/A'}"
+    assert result.returncode == 0, \
+        f"Expected return code 0, got {result.returncode}. Stderr: {result.stderr}"
     
-    # Check that some logging output was captured (from any source)
-    stderr_output = result.stderr.decode('utf-8', errors='replace') if hasattr(result, 'stderr') and result.stderr else ""
+    # Check that some logging output was captured
+    stderr_output = result.stderr if result.stderr else ""
         
     assert "Starting Wikipedia MCP server with stdio transport" in stderr_output, \
         f"Expected startup message not found in stderr. Stderr: {stderr_output}"
@@ -61,7 +64,7 @@ def test_cli_stdio_transport_starts():
         f"Expected stdio mode message not found in stderr. Stderr: {stderr_output}"
 
     # Verify stdout is empty (no prints interfering with stdio protocol)
-    stdout_output = result.stdout.decode('utf-8', errors='replace') if hasattr(result, 'stdout') and result.stdout else ""
+    stdout_output = result.stdout if result.stdout else ""
     assert stdout_output.strip() == "", f"stdout should be empty for stdio transport. Stdout: {stdout_output}"
 
 
@@ -106,10 +109,13 @@ def test_cli_log_levels():
         args = ["--transport", "stdio", "--log-level", level]
         result = run_mcp_command(args, expect_timeout=True)
         
-        assert isinstance(result, subprocess.TimeoutExpired), \
-            f"Expected TimeoutExpired for log level {level}, got {type(result)}. Stderr: {getattr(result, 'stderr', 'N/A')}"
+        # For stdio mode, we now expect the process to start, log, and exit cleanly.
+        assert not isinstance(result, subprocess.TimeoutExpired), \
+            f"Expected command to complete for log level {level}, but it timed out. Stderr: {getattr(result.stderr, 'decode', lambda x: x)('utf-8', 'replace') if hasattr(result, 'stderr') and result.stderr else 'N/A'}"
+        assert result.returncode == 0, \
+            f"Expected return code 0 for log level {level}, got {result.returncode}. Stderr: {result.stderr}"
         
-        stderr_output = result.stderr.decode('utf-8', errors='replace') if hasattr(result, 'stderr') and result.stderr else ""
+        stderr_output = result.stderr if result.stderr else ""
         
         startup_message = "Starting Wikipedia MCP server with stdio transport"
         if level in ["DEBUG", "INFO"]:
