@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Corrected assertions in CLI tests (`tests/test_cli.py`) to accurately reflect the behavior of the `stdio` transport in a non-interactive subprocess environment. Tests now expect and verify `subprocess.TimeoutExpired` and check `stderr` for startup messages, ensuring robust testing of CLI startup and logging levels.
 
-## [1.5.0] - YYYY-MM-DD
+## [1.5.0] - 2025-05-31
 
 ### Added
 - New tool: `summarize_article_for_query(title: str, query: str, max_length: Optional[int] = 250)` to get a summary of a Wikipedia article tailored to a specific query.
