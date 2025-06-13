@@ -7,8 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.2] - 2025-06-13
+
 ### Added
 - Added command-line argument `--language` (`-l`) to `wikipedia-mcp` to specify the Wikipedia language for the server (e.g., `wikipedia-mcp --language ja`). This enhancement allows users to easily configure the language at startup. (Related to GitHub Issue #7).
+
+### Changed
+- **Docker Improvements**: Reverted Dockerfile to use proper MCP-compatible approach with PyPI installation
+- **MCP Studio Compatibility**: Restored stdio transport for proper MCP client communication
+- **Package Installation**: Now uses `pip install wikipedia-mcp` (recommended approach) instead of local file copying
+- **Environment Configuration**: Restored proper Python environment variables for containerized deployment
+- **Dependency Cleanup**: Removed unnecessary HTTP server dependencies (uvicorn) from requirements
+
+### Fixed
+- Fixed Docker container to work properly with MCP Studio and Claude Desktop
+- Restored proper MCP protocol compliance using stdio transport instead of HTTP
 
 ## [1.5.1] - 2024-06-03
 

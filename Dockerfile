@@ -6,18 +6,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
-
-# Install the package in development mode
-RUN pip install -e .
+# Install the latest version from PyPI (recommended)
+RUN pip install wikipedia-mcp
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# MCP server uses stdio or SSE for communication
-# Default to stdio transport (can be overridden with --transport option)
+# MCP server uses stdio for communication with MCP Studio
+# Default to stdio transport (MCP standard)
 ENTRYPOINT ["wikipedia-mcp"]
 CMD ["--log-level", "INFO"]
 
@@ -26,6 +23,6 @@ LABEL org.opencontainers.image.title="Wikipedia MCP Server"
 LABEL org.opencontainers.image.description="Model Context Protocol server for Wikipedia integration"
 LABEL org.opencontainers.image.url="https://github.com/rudra-ravi/wikipedia-mcp"
 LABEL org.opencontainers.image.source="https://github.com/rudra-ravi/wikipedia-mcp"
-LABEL org.opencontainers.image.version="1.0.2"
+LABEL org.opencontainers.image.version="1.5.2"
 LABEL org.opencontainers.image.authors="Ravi Kumar <ravikumar@ravikumar-dev.me>"
 LABEL org.opencontainers.image.licenses="MIT"
