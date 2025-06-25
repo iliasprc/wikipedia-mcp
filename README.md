@@ -4,8 +4,11 @@
 
 A Model Context Protocol (MCP) server that retrieves information from Wikipedia to provide context to Large Language Models (LLMs). This tool helps AI assistants access factual information from Wikipedia to ground their responses in reliable sources.
 
-![image](https://github.com/user-attachments/assets/e41382f7-111a-4105-97f3-7851c906843e)
+<a href="https://glama.ai/mcp/servers/@Rudra-ravi/wikipedia-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@Rudra-ravi/wikipedia-mcp/badge" alt="Wikipedia Server MCP server" />
+</a>
 
+![image](https://github.com/user-attachments/assets/e41382f7-111a-4105-97f3-7851c906843e)
 
 ## Overview
 
