@@ -30,15 +30,20 @@ The Wikipedia MCP server provides real-time access to Wikipedia information thro
 
 ## Installation
 
-### From PyPI (Recommended)
+### Using pipx (Recommended for Claude Desktop)
 
-The easiest way to install the Wikipedia MCP server is directly from PyPI:
+The best way to install for Claude Desktop usage is with pipx, which installs the command globally:
 
 ```bash
-pip install wikipedia-mcp
+# Install pipx if you don't have it
+pip install pipx
+pipx ensurepath
+
+# Install the Wikipedia MCP server
+pipx install wikipedia-mcp
 ```
 
-This will install the latest stable version.
+This ensures the `wikipedia-mcp` command is available in Claude Desktop's PATH.
 
 ### Installing via Smithery
 
@@ -48,16 +53,15 @@ To install wikipedia-mcp for Claude Desktop automatically via [Smithery](https:/
 npx -y @smithery/cli install @Rudra-ravi/wikipedia-mcp --client claude
 ```
 
-### Using pipx (Recommended)
+### From PyPI (Alternative)
+
+You can also install directly from PyPI:
 
 ```bash
-# Install pipx if you don't have it
-sudo apt install pipx
-pipx ensurepath
-
-# Install the Wikipedia MCP server
-pipx install git+https://github.com/rudra-ravi/wikipedia-mcp.git
+pip install wikipedia-mcp
 ```
+
+**Note**: If you use this method and encounter connection issues with Claude Desktop, you may need to use the full path to the command in your configuration. See the [Configuration](#configuration-for-claude-desktop) section for details.
 
 ### Using a virtual environment
 
@@ -111,6 +115,7 @@ wikipedia-mcp --transport sse    # For HTTP streaming
 
 Add the following to your Claude Desktop configuration file:
 
+**Option 1: Using command name (requires `wikipedia-mcp` to be in PATH)**
 ```json
 {
   "mcpServers": {
@@ -121,10 +126,25 @@ Add the following to your Claude Desktop configuration file:
 }
 ```
 
-Location of the configuration file:
+**Option 2: Using full path (recommended if you get connection errors)**
+```json
+{
+  "mcpServers": {
+    "wikipedia": {
+      "command": "/full/path/to/wikipedia-mcp"
+    }
+  }
+}
+```
+
+To find the full path, run: `which wikipedia-mcp`
+
+**Configuration file locations:**
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 - Linux: `~/.config/Claude/claude_desktop_config.json`
+
+> **Note**: If you encounter connection errors, see the [Troubleshooting](#common-issues) section for solutions.
 
 ## Available MCP Tools
 
@@ -379,7 +399,49 @@ When contributing new features:
 
 ### Common Issues
 
-- **Connection Error**: Ensure the command in claude_desktop_config.json is correct
+#### Claude Desktop Connection Issues
+
+**Problem**: Claude Desktop shows errors like `spawn wikipedia-mcp ENOENT` or cannot find the command.
+
+**Cause**: This occurs when the `wikipedia-mcp` command is installed in a user-specific location (like `~/.local/bin/`) that's not in Claude Desktop's PATH.
+
+**Solutions**:
+
+1. **Use full path to the command** (Recommended):
+   ```json
+   {
+     "mcpServers": {
+       "wikipedia": {
+         "command": "/home/username/.local/bin/wikipedia-mcp"
+       }
+     }
+   }
+   ```
+   
+   To find your exact path, run: `which wikipedia-mcp`
+
+2. **Install with pipx for global access**:
+   ```bash
+   pipx install wikipedia-mcp
+   ```
+   Then use the standard configuration:
+   ```json
+   {
+     "mcpServers": {
+       "wikipedia": {
+         "command": "wikipedia-mcp"
+       }
+     }
+   }
+   ```
+
+3. **Create a symlink to a global location**:
+   ```bash
+   sudo ln -s ~/.local/bin/wikipedia-mcp /usr/local/bin/wikipedia-mcp
+   ```
+
+#### Other Issues
+
 - **Article Not Found**: Check the exact spelling of article titles
 - **Rate Limiting**: Wikipedia API has rate limits; consider adding delays between requests
 - **Large Articles**: Some Wikipedia articles are very large and may exceed token limits
