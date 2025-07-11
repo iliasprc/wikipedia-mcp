@@ -26,7 +26,7 @@ The Wikipedia MCP server provides real-time access to Wikipedia information thro
 - **Section Extraction**: Retrieve specific sections from articles
 - **Link Discovery**: Find links within articles to related topics
 - **Related Topics**: Discover topics related to a specific article
-- **Multi-language Support**: Access Wikipedia in different languages
+- **Multi-language Support**: Access Wikipedia in different languages by specifying the `--language` or `-l` argument when running the server (e.g., `wikipedia-mcp --language ta` for Tamil).
 
 ## Installation
 
