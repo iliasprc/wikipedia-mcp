@@ -1,139 +1,75 @@
 # PyPI Publishing Guide for Wikipedia MCP
 
-This guide will help you set up automated PyPI publishing for the Wikipedia MCP server.
+This guide will help you set up automated PyPI publishing for the Wikipedia MCP server using modern **Trusted Publishing** (OpenID Connect).
 
-## Prerequisites
+## 🔐 Modern Trusted Publishing Setup (Recommended)
 
-1. **PyPI Account**: Create an account at [pypi.org](https://pypi.org/account/register/)
-2. **TestPyPI Account**: Create an account at [test.pypi.org](https://test.pypi.org/account/register/) for testing
-3. **GitHub Repository**: Your code should be in a GitHub repository
+Trusted Publishing is the modern, secure way to publish to PyPI. It eliminates the need for API tokens and uses OpenID Connect (OIDC) for authentication.
 
-## Step 1: Generate PyPI API Tokens
+### Step 1: Set Up PyPI Trusted Publisher
 
-### For PyPI (Production)
-1. Go to [PyPI Account Settings](https://pypi.org/manage/account/)
-2. Scroll down to "API tokens"
-3. Click "Add API token"
-4. Give it a name like "wikipedia-mcp-github-actions"
-5. Set scope to "Entire account" (you can limit this to specific projects later)
-6. Copy the token (starts with `pypi-`)
+1. **For PyPI (Production)**:
+   - Go to [PyPI Trusted Publishers](https://pypi.org/manage/account/publishing/)
+   - Click "Add a new pending publisher"
+   - Fill in the form:
+     - **PyPI project name**: `wikipedia-mcp`
+     - **Owner**: `Rudra-ravi`
+     - **Repository name**: `wikipedia-mcp`
+     - **Workflow name**: `release.yml`
+     - **Environment name**: `pypi`
 
-### For TestPyPI (Testing)
-1. Go to [TestPyPI Account Settings](https://test.pypi.org/manage/account/)
-2. Follow the same steps as above
-3. Copy the token (starts with `pypi-`)
+2. **For TestPyPI (Testing)**:
+   - Go to [TestPyPI Trusted Publishers](https://test.pypi.org/manage/account/publishing/)
+   - Fill in the same form but with:
+     - **Environment name**: `testpypi`
 
-## Step 2: Add GitHub Secrets
+### Step 2: Create GitHub Environments
 
-1. Go to your GitHub repository
-2. Click on "Settings" tab
-3. In the left sidebar, click "Secrets and variables" → "Actions"
-4. Click "New repository secret"
-5. Add these secrets:
+1. Go to your GitHub repository settings
+2. Navigate to **Environments** (in the left sidebar under "Code and automation")
+3. Create two environments:
 
-   - **Name**: `PYPI_API_TOKEN`
-     **Value**: Your PyPI API token (the one that starts with `pypi-`)
+#### PyPI Environment (Production)
+- **Name**: `pypi`
+- **Protection rules**: 
+  - ✅ Required reviewers (add yourself)
+  - ✅ Wait timer: 0 minutes
+  - ✅ Deployment branches: Selected branches → `main`
 
-   - **Name**: `TEST_PYPI_API_TOKEN`
-     **Value**: Your TestPyPI API token
+#### TestPyPI Environment (Testing)
+- **Name**: `testpypi`
+- **Protection rules**: 
+  - ✅ Deployment branches: All branches (for testing)
 
-   - **Name**: `PYPI_USERNAME` (fallback)
-     **Value**: `__token__`
-
-   - **Name**: `PYPI_PASSWORD` (fallback)
-     **Value**: Your PyPI API token
-
-## Step 3: Test Local Build
-
-Before using GitHub Actions, test the build locally:
-
-```bash
-# Install build tools
-pip install build twine
-
-# Build the package
-python -m build
-
-# Check the package
-twine check dist/*
-
-# Test upload to TestPyPI (optional)
-twine upload --repository testpypi dist/* --username __token__ --password YOUR_TEST_PYPI_TOKEN
-```
-
-## Step 4: Manual PyPI Upload (Alternative)
-
-If GitHub Actions isn't working, you can upload manually:
-
-```bash
-# Build the package
-python -m build
-
-# Upload to PyPI
-twine upload dist/* --username __token__ --password YOUR_PYPI_TOKEN
-```
-
-## Step 5: Using GitHub Actions
-
-The updated workflow in `.github/workflows/release.yml` now supports:
-
-1. **Modern PyPI token authentication**
-2. **Trusted publishing** (recommended by PyPI)
-3. **Fallback to username/password** if token fails
-4. **Package validation** before upload
-
-To trigger a release:
+### Step 3: Test the Workflow
 
 1. Go to your GitHub repository
-2. Click "Actions" tab
-3. Click "Release Wikipedia MCP" workflow
-4. Click "Run workflow"
-5. Enter the version number (e.g., "1.5.0")
+2. Click **Actions** tab
+3. Click **Release Wikipedia MCP** workflow
+4. Click **Run workflow**
+5. Enter version (e.g., `1.5.3`)
 6. Choose if it's a pre-release
-7. Click "Run workflow"
+7. Click **Run workflow**
 
-## Step 6: Verify Publication
+## 🔧 Troubleshooting Current Issues
 
-After successful upload:
+### Issue 1: Git Push Error
+**Error**: `error: src refspec main does not match any`
 
-1. Check [PyPI](https://pypi.org/project/wikipedia-mcp/) for your package
-2. Test installation: `pip install wikipedia-mcp`
-3. Test the uvx command: `uvx wikipedia-mcp`
+**Solution**: The updated workflow now properly handles the main branch push by using `git push origin HEAD:main`.
 
-## Troubleshooting Common Issues
+### Issue 2: Detached HEAD State
+**Solution**: The workflow now commits changes before creating tags, avoiding detached HEAD issues.
 
-### 1. "403 Forbidden" Error
-- **Cause**: Invalid credentials or insufficient permissions
-- **Solution**: Regenerate API token and update GitHub secrets
+### Issue 3: Missing Trusted Publishing Setup
+**Solution**: Follow Step 1 above to set up trusted publishers on PyPI and TestPyPI.
 
-### 2. "400 Bad Request" Error
-- **Cause**: Package name already exists or invalid metadata
-- **Solution**: Check if package name is available, validate setup.py/pyproject.toml
+### Issue 4: Missing GitHub Environments
+**Solution**: Follow Step 2 above to create the required environments.
 
-### 3. "422 Unprocessable Entity" Error
-- **Cause**: Version already exists on PyPI
-- **Solution**: Increment version number in setup.py and pyproject.toml
+## 📦 Package Installation Commands
 
-### 4. "500 Internal Server Error"
-- **Cause**: Temporary PyPI server issues
-- **Solution**: Wait and retry, or check [PyPI status](https://status.python.org/)
-
-### 5. Package Not Found After Upload
-- **Cause**: PyPI indexing delay or upload failure
-- **Solution**: Wait 5-10 minutes, check PyPI directly
-
-## Best Practices
-
-1. **Always test on TestPyPI first**
-2. **Use semantic versioning** (e.g., 1.5.0, 1.5.1)
-3. **Update CHANGELOG.md** before releases
-4. **Tag releases** in Git
-5. **Use API tokens** instead of passwords
-6. **Keep secrets secure** and rotate them regularly
-
-## Package Installation Commands
-
-After publishing, users can install your package with:
+After successful publishing, users can install your package with:
 
 ```bash
 # Using pip
@@ -146,7 +82,7 @@ uvx wikipedia-mcp
 pipx install wikipedia-mcp
 ```
 
-## MCP Configuration
+## 🔄 MCP Configuration
 
 Users can then add to their MCP configuration:
 
@@ -159,4 +95,57 @@ Users can then add to their MCP configuration:
 }
 ```
 
-This addresses the original issue from [GitHub Issue #5](https://github.com/Rudra-ravi/wikipedia-mcp/issues/5). 
+## 🚀 Release Process
+
+1. **Update CHANGELOG.md** with your changes
+2. **Run the workflow**:
+   - Go to Actions → Release Wikipedia MCP
+   - Click "Run workflow"
+   - Enter the new version number
+   - Choose if it's a pre-release
+   - Click "Run workflow"
+3. **The workflow will**:
+   - Build the package
+   - Create a GitHub release with files
+   - Publish to TestPyPI (always)
+   - Publish to PyPI (only for non-pre-releases)
+
+## 🔍 Verification Steps
+
+After a successful release:
+
+1. **Check GitHub Release**: Should appear in your repository's releases
+2. **Check TestPyPI**: Visit [test.pypi.org/project/wikipedia-mcp](https://test.pypi.org/project/wikipedia-mcp/)
+3. **Check PyPI**: Visit [pypi.org/project/wikipedia-mcp](https://pypi.org/project/wikipedia-mcp/)
+4. **Test Installation**: `pip install wikipedia-mcp==<version>`
+
+## ⚠️ Important Notes
+
+1. **First Time Setup**: The trusted publisher will create the PyPI project automatically on first use
+2. **Environment Protection**: The `pypi` environment requires manual approval for security
+3. **Version Management**: Always increment the version number for new releases
+4. **Pre-releases**: Use pre-release option for alpha/beta versions
+
+## 🛠️ Advanced Configuration
+
+### Custom Package Name
+If you want to publish under a different name, update:
+- PyPI trusted publisher configuration
+- `pyproject.toml` name field
+- Workflow environment URLs
+
+### Additional Security
+Consider adding:
+- Branch protection rules
+- Required status checks
+- CODEOWNERS file
+
+## 📚 References
+
+- [PyPI Trusted Publishing Documentation](https://docs.pypi.org/trusted-publishers/)
+- [GitHub Actions OpenID Connect](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-pypi)
+- [Python Packaging User Guide](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
+
+---
+
+This setup provides a secure, modern, and automated way to publish your Python package to PyPI without managing API tokens!
