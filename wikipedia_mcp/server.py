@@ -5,20 +5,19 @@ Wikipedia MCP server implementation.
 import logging
 from typing import Dict, List, Optional, Any
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from wikipedia_mcp.wikipedia_client import WikipediaClient
 
 logger = logging.getLogger(__name__)
 
-def create_server(language: str = "en") -> FastMCP:
+def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
     """Create and configure the Wikipedia MCP server."""
     server = FastMCP(
         name="Wikipedia",
-        description="Retrieve information from Wikipedia to provide context to LLMs."
     )
 
     # Initialize Wikipedia client
-    wikipedia_client = WikipediaClient(language=language)
+    wikipedia_client = WikipediaClient(language=language, enable_cache=enable_cache)
 
     # Register tools
     @server.tool()

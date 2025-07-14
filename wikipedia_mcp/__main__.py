@@ -38,6 +38,17 @@ def main():
         default="en",
         help="Language code for Wikipedia (e.g., en, ja, es). Default: en"
     )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port for SSE transport (default: 8000, optional)"
+    )
+    parser.add_argument(
+        "--enable-cache",
+        action="store_true",
+        help="Enable caching for Wikipedia API calls (optional)"
+    )
     args = parser.parse_args()
 
     # Configure logging - use basicConfig for simplicity but ensure it goes to stderr
@@ -51,10 +62,12 @@ def main():
     logger = logging.getLogger(__name__)
 
     # Create and start the server
-    server = create_server(language=args.language)
+    server = create_server(language=args.language, enable_cache=args.enable_cache)
     
     # Log startup information using our configured logger
-    logger.info("Starting Wikipedia MCP server with %s transport", args.transport)
+    logger.info("Starting Wikipedia MCP server with %s transport%s", 
+                args.transport, 
+                f" on port {args.port}" if args.transport == "sse" else "")
     
     if args.transport != "stdio":
         config_template = """
@@ -71,7 +84,10 @@ def main():
         logger.info("Using stdio transport - suppressing direct stdout messages for MCP communication.")
         logger.info("To use with Claude Desktop, ensure 'wikipedia-mcp' command is in your claude_desktop_config.json.")
     
-    server.run(transport=args.transport)
+    if args.transport == "sse":
+        server.run(transport=args.transport, port=args.port)
+    else:
+        server.run(transport=args.transport)
 
 if __name__ == "__main__":
     main()

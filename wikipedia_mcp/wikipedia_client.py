@@ -6,19 +6,22 @@ import logging
 import wikipediaapi
 import requests
 from typing import Dict, List, Optional, Any
+import functools
 
 logger = logging.getLogger(__name__)
 
 class WikipediaClient:
     """Client for interacting with the Wikipedia API."""
 
-    def __init__(self, language: str = "en"):
+    def __init__(self, language: str = "en", enable_cache: bool = False):
         """Initialize the Wikipedia client.
         
         Args:
             language: The language code for Wikipedia (default: "en" for English).
+            enable_cache: Whether to enable caching for API calls (default: False).
         """
         self.language = language
+        self.enable_cache = enable_cache
         self.user_agent = "WikipediaMCPServer/0.1.0 (https://github.com/rudra-ravi/wikipedia-mcp)"
         self.wiki = wikipediaapi.Wikipedia(
             user_agent=self.user_agent,
@@ -26,6 +29,17 @@ class WikipediaClient:
             extract_format=wikipediaapi.ExtractFormat.WIKI
         )
         self.api_url = f"https://{language}.wikipedia.org/w/api.php"
+        
+        if self.enable_cache:
+            self.search = functools.lru_cache(maxsize=128)(self.search)
+            self.get_article = functools.lru_cache(maxsize=128)(self.get_article)
+            self.get_summary = functools.lru_cache(maxsize=128)(self.get_summary)
+            self.get_sections = functools.lru_cache(maxsize=128)(self.get_sections)
+            self.get_links = functools.lru_cache(maxsize=128)(self.get_links)
+            self.get_related_topics = functools.lru_cache(maxsize=128)(self.get_related_topics)
+            self.summarize_for_query = functools.lru_cache(maxsize=128)(self.summarize_for_query)
+            self.summarize_section = functools.lru_cache(maxsize=128)(self.summarize_section)
+            self.extract_facts = functools.lru_cache(maxsize=128)(self.extract_facts)
 
     def search(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """Search Wikipedia for articles matching a query.

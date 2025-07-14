@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wikipedia-mcp"
-version = "1.5.3a1"
+version = "1.5.4"
 authors = [
     {name = "Ravi Kumar E", email = "ravikumar@ravikumar-dev.me"},
 ]
@@ -23,7 +23,7 @@ classifiers = [
 ]
 keywords = ["mcp", "wikipedia", "model-context-protocol", "ai", "llm"]
 dependencies = [
-    "mcp==1.10.0",
+    "fastmcp>=2.3.0",
     "wikipedia-api>=0.8.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",

@@ -27,6 +27,7 @@ The Wikipedia MCP server provides real-time access to Wikipedia information thro
 - **Link Discovery**: Find links within articles to related topics
 - **Related Topics**: Discover topics related to a specific article
 - **Multi-language Support**: Access Wikipedia in different languages by specifying the `--language` or `-l` argument when running the server (e.g., `wikipedia-mcp --language ta` for Tamil).
+- **Optional caching**: Cache API responses for improved performance using --enable-cache
 
 ## Installation
 
@@ -109,6 +110,12 @@ wikipedia-mcp --transport sse    # For HTTP streaming
 
 # Specify language (default: en for English)
 # wikipedia-mcp --language ja  # Example for Japanese
+
+# Optional: Specify port for SSE (default 8000)
+wikipedia-mcp --transport sse --port 8080
+
+# Optional: Enable caching
+wikipedia-mcp --enable-cache
 ```
 
 ### Configuration for Claude Desktop

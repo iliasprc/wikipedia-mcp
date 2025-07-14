@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2025-07-15
+
+### Added
+- **Configurable Port**: Added optional `--port` argument for SSE transport (default: 8000). Enables running multiple server instances on the same host without port conflicts.
+  ```bash
+  # Run on custom port
+  wikipedia-mcp --transport sse --port 8080
+  
+  # Multiple instances on different ports
+  wikipedia-mcp --transport sse --port 8081 &
+  wikipedia-mcp --transport sse --port 8082 &
+  ```
+
+- **Optional Caching**: Added `--enable-cache` flag for Wikipedia API response caching. Improves performance for repeated queries by caching results in memory using LRU cache (maxsize=128).
+  ```bash
+  # Enable caching for better performance
+  wikipedia-mcp --enable-cache
+  
+  # Combine with other options
+  wikipedia-mcp --transport sse --port 8080 --enable-cache --language ja
+  ```
+
+### Changed
+- **Dependency Migration**: Migrated from `mcp==1.10.0` to `fastmcp>=2.3.0` for enhanced SSE transport capabilities and modern MCP features including configurable port support.
+- **Import Updates**: Updated server implementation to use `from fastmcp import FastMCP` instead of the legacy MCP server import.
+
+### Technical Notes
+- Port configuration only applies to SSE transport; STDIO transport ignores the port parameter
+- Caching is disabled by default to maintain backward compatibility
+- When caching is enabled, the following methods are cached: search, get_article, get_summary, get_sections, get_links, get_related_topics, summarize_for_query, summarize_section, extract_facts
+- Cache statistics can be accessed programmatically via `client.method.cache_info()` when caching is enabled
+
 ## [Unreleased]
 
 ## [1.5.2] - 2025-06-13
