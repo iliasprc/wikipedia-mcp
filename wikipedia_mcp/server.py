@@ -3,7 +3,7 @@ Wikipedia MCP server implementation.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from fastmcp import FastMCP
 from wikipedia_mcp.wikipedia_client import WikipediaClient
@@ -21,7 +21,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
 
     # Register tools
     @server.tool()
-    def search_wikipedia(query: str, limit: int = 10) -> Dict[str, Any]:
+    def search_wikipedia(query: str, limit: int = 10) -> Dict[str]:
         """Search Wikipedia for articles matching a query."""
         logger.info(f"Tool: Searching Wikipedia for: {query}")
         results = wikipedia_client.search(query, limit=limit)
@@ -31,14 +31,14 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def get_article(title: str) -> Dict[str, Any]:
+    def get_article(title: str) -> Dict[str]:
         """Get the full content of a Wikipedia article."""
         logger.info(f"Tool: Getting article: {title}")
         article = wikipedia_client.get_article(title)
         return article
 
     @server.tool()
-    def get_summary(title: str) -> Dict[str, Any]:
+    def get_summary(title: str) -> Dict[str]:
         """Get a summary of a Wikipedia article."""
         logger.info(f"Tool: Getting summary for: {title}")
         summary = wikipedia_client.get_summary(title)
@@ -48,7 +48,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def summarize_article_for_query(title: str, query: str, max_length: Optional[int] = 250) -> Dict[str, Any]:
+    def summarize_article_for_query(title: str, query: str, max_length: Optional[int] = 250) -> Dict[str]:
         """Get a summary of a Wikipedia article tailored to a specific query."""
         logger.info(f"Tool: Getting query-focused summary for article: {title}, query: {query}")
         # Assuming wikipedia_client has a method like summarize_for_query
@@ -60,7 +60,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def summarize_article_section(title: str, section_title: str, max_length: Optional[int] = 150) -> Dict[str, Any]:
+    def summarize_article_section(title: str, section_title: str, max_length: Optional[int] = 150) -> Dict[str]:
         """Get a summary of a specific section of a Wikipedia article."""
         logger.info(f"Tool: Getting summary for section: {section_title} in article: {title}")
         # Assuming wikipedia_client has a method like summarize_section
@@ -72,7 +72,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def extract_key_facts(title: str, topic_within_article: Optional[str] = None, count: int = 5) -> Dict[str, Any]:
+    def extract_key_facts(title: str, topic_within_article: Optional[str] = None, count: int = 5) -> Dict[str]:
         """Extract key facts from a Wikipedia article, optionally focused on a topic."""
         logger.info(f"Tool: Extracting key facts for article: {title}, topic: {topic_within_article}")
         # Assuming wikipedia_client has a method like extract_facts
@@ -84,7 +84,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def get_related_topics(title: str, limit: int = 10) -> Dict[str, Any]:
+    def get_related_topics(title: str, limit: int = 10) -> Dict[str]:
         """Get topics related to a Wikipedia article based on links and categories."""
         logger.info(f"Tool: Getting related topics for: {title}")
         related = wikipedia_client.get_related_topics(title, limit=limit)
@@ -94,7 +94,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def get_sections(title: str) -> Dict[str, Any]:
+    def get_sections(title: str) -> Dict[str]:
         """Get the sections of a Wikipedia article."""
         logger.info(f"Tool: Getting sections for: {title}")
         sections = wikipedia_client.get_sections(title)
@@ -104,7 +104,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def get_links(title: str) -> Dict[str, Any]:
+    def get_links(title: str) -> Dict[str]:
         """Get the links contained within a Wikipedia article."""
         logger.info(f"Tool: Getting links for: {title}")
         links = wikipedia_client.get_links(title)
@@ -114,7 +114,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/search/{query}")
-    def search(query: str) -> Dict[str, Any]:
+    def search(query: str) -> Dict[str]:
         """Search Wikipedia for articles matching a query."""
         logger.info(f"Searching Wikipedia for: {query}")
         results = wikipedia_client.search(query, limit=10)
@@ -124,14 +124,14 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/article/{title}")
-    def article(title: str) -> Dict[str, Any]:
+    def article(title: str) -> Dict[str]:
         """Get the full content of a Wikipedia article."""
         logger.info(f"Getting article: {title}")
         article = wikipedia_client.get_article(title)
         return article
 
     @server.resource("/summary/{title}")
-    def summary(title: str) -> Dict[str, Any]:
+    def summary(title: str) -> Dict[str]:
         """Get a summary of a Wikipedia article."""
         logger.info(f"Getting summary for: {title}")
         summary = wikipedia_client.get_summary(title)
@@ -141,7 +141,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/summary/{title}/query/{query}/length/{max_length}")
-    def summary_for_query_resource(title: str, query: str, max_length: int) -> Dict[str, Any]:
+    def summary_for_query_resource(title: str, query: str, max_length: int) -> Dict[str]:
         """Get a summary of a Wikipedia article tailored to a specific query."""
         logger.info(f"Resource: Getting query-focused summary for article: {title}, query: {query}, max_length: {max_length}")
         summary = wikipedia_client.summarize_for_query(title, query, max_length=max_length)
@@ -152,7 +152,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/summary/{title}/section/{section_title}/length/{max_length}")
-    def summary_section_resource(title: str, section_title: str, max_length: int) -> Dict[str, Any]:
+    def summary_section_resource(title: str, section_title: str, max_length: int) -> Dict[str]:
         """Get a summary of a specific section of a Wikipedia article."""
         logger.info(f"Resource: Getting summary for section: {section_title} in article: {title}, max_length: {max_length}")
         summary = wikipedia_client.summarize_section(title, section_title, max_length=max_length)
@@ -163,7 +163,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/sections/{title}")
-    def sections(title: str) -> Dict[str, Any]:
+    def sections(title: str) -> Dict[str]:
         """Get the sections of a Wikipedia article."""
         logger.info(f"Getting sections for: {title}")
         sections = wikipedia_client.get_sections(title)
@@ -173,7 +173,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/links/{title}")
-    def links(title: str) -> Dict[str, Any]:
+    def links(title: str) -> Dict[str]:
         """Get the links in a Wikipedia article."""
         logger.info(f"Getting links for: {title}")
         links = wikipedia_client.get_links(title)
@@ -183,7 +183,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.resource("/facts/{title}/topic/{topic_within_article}/count/{count}")
-    def key_facts_resource(title: str, topic_within_article: str, count: int) -> Dict[str, Any]:
+    def key_facts_resource(title: str, topic_within_article: str, count: int) -> Dict[str]:
         """Extract key facts from a Wikipedia article."""
         logger.info(f"Resource: Extracting key facts for article: {title}, topic: {topic_within_article}, count: {count}")
         facts = wikipedia_client.extract_facts(title, topic_within_article, count=count)

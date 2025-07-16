@@ -5,7 +5,7 @@ Wikipedia API client implementation.
 import logging
 import wikipediaapi
 import requests
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 import functools
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class WikipediaClient:
             self.summarize_section = functools.lru_cache(maxsize=128)(self.summarize_section)
             self.extract_facts = functools.lru_cache(maxsize=128)(self.extract_facts)
 
-    def search(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def search(self, query: str, limit: int = 10) -> List[Dict]:
         """Search Wikipedia for articles matching a query.
         
         Args:
@@ -80,7 +80,7 @@ class WikipediaClient:
             logger.error(f"Error searching Wikipedia: {e}")
             return []
 
-    def get_article(self, title: str) -> Dict[str, Any]:
+    def get_article(self, title: str) -> Dict:
         """Get the full content of a Wikipedia article.
         
         Args:
@@ -147,7 +147,7 @@ class WikipediaClient:
             logger.error(f"Error getting Wikipedia summary: {e}")
             return f"Error retrieving summary for '{title}': {str(e)}"
 
-    def get_sections(self, title: str) -> List[Dict[str, Any]]:
+    def get_sections(self, title: str) -> List[Dict]:
         """Get the sections of a Wikipedia article.
         
         Args:
@@ -187,7 +187,7 @@ class WikipediaClient:
             logger.error(f"Error getting Wikipedia links: {e}")
             return []
 
-    def get_related_topics(self, title: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_related_topics(self, title: str, limit: int = 10) -> List[Dict]:
         """Get topics related to a Wikipedia article based on links and categories.
         
         Args:
@@ -242,7 +242,7 @@ class WikipediaClient:
             logger.error(f"Error getting related topics: {e}")
             return []
 
-    def _extract_sections(self, sections, level=0) -> List[Dict[str, Any]]:
+    def _extract_sections(self, sections, level=0) -> List[Dict]:
         """Extract sections recursively.
         
         Args:
