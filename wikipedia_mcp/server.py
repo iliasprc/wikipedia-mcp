@@ -48,7 +48,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def summarize_article_for_query(title: str, query: str, max_length: Optional[int] = 250) -> Dict:
+    def summarize_article_for_query(title: str, query: str, max_length: int = 250) -> Dict:
         """Get a summary of a Wikipedia article tailored to a specific query."""
         logger.info(f"Tool: Getting query-focused summary for article: {title}, query: {query}")
         # Assuming wikipedia_client has a method like summarize_for_query
@@ -60,7 +60,7 @@ def create_server(language: str = "en", enable_cache: bool = False) -> FastMCP:
         }
 
     @server.tool()
-    def summarize_article_section(title: str, section_title: str, max_length: Optional[int] = 150) -> Dict:
+    def summarize_article_section(title: str, section_title: str, max_length: int = 150) -> Dict:
         """Get a summary of a specific section of a Wikipedia article."""
         logger.info(f"Tool: Getting summary for section: {section_title} in article: {title}")
         # Assuming wikipedia_client has a method like summarize_section
